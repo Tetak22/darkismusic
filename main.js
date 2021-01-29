@@ -14,11 +14,14 @@ const client = new Discord.Client();
 const queue = new Map();
 
 client.on("ready", () => {
-    console.log("Darkis music bot je online!")
-})
+    console.log("Darkis music bot je online!");
+    client.user.setActivity('To youtube' , { type: 'LISTENING'});
+});
 
 client.on("message", async(message) => {
-    const prefix =a
+    const prefix = '!';
+
+    const serverQueue = queue.get(message.guild.id);
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g)
     const command = args.shift().toLowerCase();
@@ -38,7 +41,7 @@ client.on("message", async(message) => {
     async function execute(message, serverQueue){
         let vc = message.member.voice.channel;
         if(!vc){
-            return message.channel.send("Molim te prvo udi u call!");
+            return message.channel.send("Molimte prvo udi u call!");
         }else{
             let result = await searcher.search(args.join(" "), { type: "video" })
             const songInfo = await ytdl.getInfo(result.first.url)
@@ -68,7 +71,7 @@ client.on("message", async(message) => {
                 }catch (err){
                     console.error(err);
                     queue.delete(message.guild.id);
-                    return message.channel.send(`Nemogu uci u call ${err}`)
+                    return message.channel.send(`Ne mogu se uci u call ${err}`)
                 }
             }else{
                 serverQueue.songs.push(song);
@@ -99,11 +102,11 @@ client.on("message", async(message) => {
     }
     function skip (message, serverQueue){
         if(!message.member.voice.channel)
-            return message.channel.send("Moras biti u callu da bi skipo");
+            return message.channel.send("Moras biti u callu da bi skipo!");
         if(!serverQueue)
             return message.channel.send("Nema nista za skipati!");
         serverQueue.connection.dispatcher.end();
     }
 })
 
-client.login('process.env.token')
+client.login(process.env.token)
